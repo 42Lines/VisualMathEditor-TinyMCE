@@ -1,6 +1,5 @@
 (function () {
     'use strict';
-    var vmeWindow = null;
     var setup = function (editor, url) {
         editor.addButton('visualmatheditor', {
             title: 'Visual Math Editor',
@@ -27,7 +26,13 @@
             }
         });
         editor.on('dblclick', function (e) {
-            registerDblClickHandler(e.target);
+            openEditorIfFormula(e.target);
+        });
+        editor.on('keydown', function (e) {
+            if (e.keyCode === 13 && isFormula(editor.selection.getNode())) {
+                e.preventDefault();
+                openEditor(editor.selection.getNode().getAttribute('data-vme-tex'), 'en_US', 'aguas');
+            }
         });
     };
     function isFormula(node) {
@@ -36,7 +41,7 @@
         }
         return false;
     }
-    function registerDblClickHandler(node) {
+    function openEditorIfFormula(node) {
         if (isFormula(node)) {
             openEditor(node.getAttribute('data-vme-tex'), 'en_US', 'aguas');
             tinymce.activeEditor.selection.select(node);
@@ -59,11 +64,7 @@ You should have received a copy of the GNU General Public License along with thi
 For jslint Options
 -browser: true to assume there is an instance of the object window
 */
-// Global VME objects _________________________________________________________________
 var openEditor; // fonction globale pour l'ouverture d'une fenètre VME
-var winVME = null; // variable globale pour concerver la fenètre VME
-var intervalVME = null; // hack pour contourner le bug window.opener not set in iOS Chrome, voir vme.getEquationFromCaller() de VisualMathEditor.js
-// End Global objects
 var insertOrReplaceFormula;
 var mj2img;
 (function ($) {
@@ -119,55 +120,10 @@ var mj2img;
         }
     });
     window.openEditor = function openVisualMathEditor(equation, i18n, style) {
-        /* Si la fenêtre VME est déjà ouverte, nous utilisons l'API de l'object vme pour réinitialiser les variables */
-        if (winVME && !winVME.closed && winVME.vme !== undefined) {
-            var vme_1 = winVME.vme;
-            var latex = equation;
-            // initialisation du code latex à partir de l'équation passé en paramètre
-            vme_1.textareaIgnore = true;
-            vme_1.textareaID = null;
-            vme_1.textAreaForSaveASCII = null;
-            if (!winVME.$('#mUPDATE_EQUATION').hasClass('menu-item-disabled')) {
-                winVME.$('#mUPDATE_EQUATION').addClass('menu-item-disabled').click(function () { vme_1.getEquationFromCaller(); });
-            }
-            if (!winVME.$('#mSET_EQUATION').hasClass('menu-item-disabled')) {
-                winVME.$('#mSET_EQUATION').addClass('menu-item-disabled').click(function () { vme_1.setEquationInCaller(); });
-            }
-            if (!vme_1.runNotCodeMirror) {
-                vme_1.codeMirrorEditor.setValue(latex);
-                vme_1.setCodeMirrorCursorAtEnd();
-            }
-            else {
-                vme_1.mathTextInput.value = latex;
-            }
-            // initialisation du style à partir de celui passé en paramètre
-            vme_1.style = style;
-            winVME.$('[name=', 'style', ']').filter('[value=' + vme_1.style + ']').attr('checked', 'checked');
-            vme_1.chooseStyle();
-            // initialisation du langage à partir de celui passé en paramètre
-            vme_1.localType = i18n;
-            winVME.$('[name=', 'localType', ']').filter('[value=' + vme_1.localType + ']').attr('checked', 'checked');
-            vme_1.localize();
-            // initialisation du mode non HTML
-            vme_1.encloseAllFormula = false;
-            winVME.$('#btENCLOSE_TYPE').addClass('unselect');
-            winVME.$('#HTML_TAG').hide();
-            if (!vme_1.runNotCodeMirror) {
-                vme_1.codeMirrorEditor.setOption('mode', 'text/x-latex');
-                vme_1.codeMirrorEditor.setOption('autoCloseTags', false);
-            }
-            vme_1.resizeDivInputOutput();
-            // rendu de l'équation à partir du code latex
-            vme_1.codeType = 'Latex';
-            vme_1.printCodeType();
-            vme_1.updateOutput();
-            vme_1.saveCookies();
-            /* Si la fenêtre VME n'est pas    ouverte, nous l'ouvrons */
-        }
-        else {
-            winVME = window.open('vme/VisualMathEditor.html?runLocal&codeType=Latex&encloseAllFormula=false&style=' + style + '&localType=' + i18n + '&equation=' + equation.replace(/\\/g, '%5C'), 'VisualMathEditor', 'height=580,width=780,top=100,left=100,status=yes,toolbar=no,menubar=no,location=no,resizable=yes,scrollbars=no,modal=no,dependable=yes');
-        }
-        winVME.focus();
+        var iFrameSource = '/wicket/resource/net.ftlines.lms.components.tinymce.TinyMceResourcesBehavior/plugins/visualmatheditor/vme/VisualMathEditor.html?runLocal&codeType=Latex&encloseAllFormula=false&style=' + style + '&localType=' + i18n + '&equation=' + equation.replace(/\\/g, '%5C');
+        var html = '<div class="bstr-modal fade" id="vmeModal" role="dialog"><div class="bstr-modal-dialog"><div class="bstr-modal-content"><div class="bstr-modal-body" style="overflow: hidden; padding-top: 70%; position: relative;"><iframe src="' + iFrameSource + '" style="border: 0; height: 100%; left: 0; position: absolute; top: 0; width: 100%;"></iframe></div></div></div></div>';
+        $(html).prependTo('body');
+        $('#vmeModal').modal({ show: true });
     };
     window.mj2img = function (texstring, callback) {
         var input = texstring;
@@ -197,8 +153,13 @@ var mj2img;
     };
     window.insertOrReplaceFormula = function (sometext) {
         mj2img('\\[' + sometext + '\\]', function (output) {
-            var img = '<img src="' + output.img + '" data-vme-tex="' + sometext + '"/>';
+            var img = '<img src="' + output.img + '" title="' + sometext + '" data-vme-tex="' + sometext + '"/>';
             tinymce.activeEditor.selection.setContent(img);
         });
+    };
+    window.closeModal = function () {
+        $('#vmeModal').hide();
+        $('.bstr-modal-backdrop').remove();
+        $('body').removeClass('bstr-modal-open');
     };
 }(window.jQuery));

@@ -80,14 +80,14 @@ Editor is downloading...
 <script language="Javascript" type="text/javascript">
      function callParent() {
     	 var content = window.vme.codeMirrorEditor.getValue('');
-    	 window.opener.insertOrReplaceFormula(content);
-    	 window.close();
+    	 window.parent.insertOrReplaceFormula(content);
+    	 window.parent.closeModal();
      }
 </script>
 <div class="wrs_modal_controls" id="wrs_modal_controls[0]">
 	<div class="wrs_modal_buttons_container" id="wrs_modal_buttons_container[0]">
 		<button id="wrs_modal_button_accept[0]" class="wrs_modal_button_accept" onclick="callParent();">OK</button>
-		<button id="wrs_modal_button_cancel[0]" class="wrs_modal_button_cancel" onclick="window.close();">Cancel</button>
+		<button id="wrs_modal_button_cancel[0]" class="wrs_modal_button_cancel" onclick="window.parent.closeModal();">Cancel</button>
 	</div>
 </div>
 <div id="divInformation" style="padding-top:2px; text-align:center; height:18px; overflow:hidden">&nbsp;</div>

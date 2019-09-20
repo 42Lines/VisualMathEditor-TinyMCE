@@ -6,7 +6,7 @@ Usage:
 
 
 - copy the plugin resources (visualmatheditor folder) into the plugin folder of the TinyMCE installation
-- add MathJax to the page containing the TinyMCE Textarea
+- add MathJax and Bootstrap modal to the page containing the TinyMCE Textarea
 
 ```html
 		<script type="text/x-mathjax-config">
@@ -25,6 +25,8 @@ Usage:
 			});
 		</script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js"></script>
+		<link rel="stylesheet" type="text/css" href="vme/css/bootstrap-modal.css"></link>
+		<script type="text/javascript" src="vme/js/bootstrap-modal.js"></script>
 ```
 
 

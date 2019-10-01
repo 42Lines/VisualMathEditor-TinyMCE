@@ -26,7 +26,7 @@ a.more{display:block;border:1px solid transparent;padding:4px;color:#000000;font
 a.more:hover{border:1px solid #7eabcd;background-color:#eaf2ff;}
 a.bt{padding:0 2px 0 2px;border:1px solid transparent;color:#000000;-moz-border-radius:5px;-webkit-border-radius:5px;-o-border-radius:5px;border-radius:5px;text-decoration:underline;font-weight:normal;}
 a.bt:hover{text-decoration:none;border:1px solid #7eabcd;background-color:#eaf2ff;}
-#PARAM_EDITION_SYNTAX{float:left;display:inline-block;}
+#PARAM_EDITION_SYNTAX{float:left;display:none;}
 #PARAM_EDITION_ENCLOSE{float:right;display:inline-block;}
 a#btTITLE_EDITION_SYNTAX{color:#15428b;}
 a#btTITLE_EDITION_SYNTAX:hover{color:#15428b;}

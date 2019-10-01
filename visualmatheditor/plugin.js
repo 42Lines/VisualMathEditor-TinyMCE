@@ -155,6 +155,7 @@ var mj2img;
         mj2img('\\[' + sometext + '\\]', function (output) {
             var img = '<img src="' + output.img + '" title="' + sometext + '" data-vme-tex="' + sometext + '"/>';
             tinymce.activeEditor.selection.setContent(img);
+            tinymce.activeEditor.save();
         });
     };
     window.closeModal = function () {

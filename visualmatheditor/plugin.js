@@ -120,7 +120,7 @@ var mj2img;
         }
     });
     window.openEditor = function openVisualMathEditor(equation, i18n, style) {
-        var iFrameSource = '/wicket/resource/net.ftlines.lms.components.tinymce.TinyMceResourcesBehavior/plugins/visualmatheditor/vme/VisualMathEditor.html?runLocal&codeType=Latex&encloseAllFormula=false&style=' + style + '&localType=' + i18n + '&equation=' + equation.replace(/\\/g, '%5C');
+        var iFrameSource = 'vme/VisualMathEditor.html?runLocal&codeType=Latex&encloseAllFormula=false&style=' + style + '&localType=' + i18n + '&equation=' + equation.replace(/\\/g, '%5C');
         var html = '<div class="bstr-modal fade" id="vmeModal" role="dialog"><div class="bstr-modal-dialog"><div class="bstr-modal-content"><div class="bstr-modal-body" style="overflow: hidden; padding-top: 70%; position: relative;"><iframe src="' + iFrameSource + '" style="border: 0; height: 100%; left: 0; position: absolute; top: 0; width: 100%;"></iframe></div></div></div></div>';
         $(html).prependTo('body');
         $('#vmeModal').modal({ show: true });
@@ -152,11 +152,17 @@ var mj2img;
         });
     };
     window.insertOrReplaceFormula = function (sometext) {
-        mj2img('\\[' + sometext + '\\]', function (output) {
-            var img = '<img src="' + output.img + '" title="' + sometext + '" data-vme-tex="' + sometext + '"/>';
-            tinymce.activeEditor.selection.setContent(img);
+        if (sometext && sometext.trim().length > 0) {
+            mj2img('\\[' + sometext.trim() + '\\]', function (output) {
+                var img = '<img src="' + output.img + '" title="' + sometext.trim() + '" data-vme-tex="' + sometext.trim() + '"/>';
+                tinymce.activeEditor.selection.setContent(img);
+                tinymce.activeEditor.save();
+            });
+        }
+        else {
+            tinymce.activeEditor.selection.setContent('');
             tinymce.activeEditor.save();
-        });
+        }
     };
     window.closeModal = function () {
         $('#vmeModal').hide();
@@ -164,3 +170,4 @@ var mj2img;
         $('body').removeClass('bstr-modal-open');
     };
 }(window.jQuery));
+//# sourceMappingURL=Plugin.js.map
